@@ -9,4 +9,16 @@ test-results/
 .openai/*
 !.openai/hosting.json
 artifacts/
+release/
+tools/
+.gradle/
+android/.gradle/
+android/local.properties
+android/**/build/
+android/.idea/
+*.keystore
+*.jks
+*.apk
+*.aab
+*.exe
 *.zip

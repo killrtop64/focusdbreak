@@ -8,10 +8,12 @@
   <meta property="og:title" content="Focus Break — one thing at a time">
   <meta property="og:description" content="A calm, private focus timer. Make room for good work and a little breathing space.">
   <title>Focus Break — время для важного</title>
-  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="icon" href="./assets/icon-7gpSbfp8.svg" type="image/svg+xml">
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="stylesheet" href="./styles.css">
-  <script type="module" src="./app.js"></script>
+  <script type="module" crossorigin src="./assets/index-wC10m0lE.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/dist-62TeNfsI.js">
+  <link rel="modulepreload" crossorigin href="./assets/definitions-DlpntO5o.js">
+  <link rel="stylesheet" crossorigin href="./assets/index-DMgO_Ft0.css">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skipToMain">Перейти к таймеру</a>
@@ -23,6 +25,7 @@
         <button class="nav-item active" data-view="focus" aria-current="page" aria-label="Фокус" data-i18n-aria="focus"><span data-icon="focus"></span><span data-i18n="focus">Фокус</span><kbd>1</kbd></button>
         <button class="nav-item" data-view="insights" aria-label="Статистика" data-i18n-aria="insights"><span data-icon="chart"></span><span data-i18n="insights">Статистика</span><kbd>2</kbd></button>
         <button class="nav-item" data-view="guide" aria-label="Идеи для отдыха" data-i18n-aria="breakGuide"><span data-icon="leaf"></span><span data-i18n="breakGuide">Идеи для отдыха</span><kbd>3</kbd></button>
+        <button class="nav-item" data-view="plan" aria-label="План на день" data-i18n-aria="dayPlan"><span data-icon="calendar"></span><span data-i18n="dayPlan">План на день</span><kbd>4</kbd></button>
       </nav>
       <div class="sidebar-bottom">
         <div class="small-plant" aria-hidden="true"><svg viewBox="0 0 160 150" fill="none"><path d="M80 120V65M80 93C55 94 39 78 41 59C65 58 81 71 80 93ZM81 72C79 49 96 30 119 32C121 55 103 73 81 72Z" stroke="currentColor" stroke-width="2"/><path d="M54 121H105L98 144H61L54 121Z" fill="currentColor" opacity=".13"/><path d="M50 120H109" stroke="currentColor" stroke-width="2"/></svg></div>
@@ -37,6 +40,8 @@
         <div class="breadcrumb"><span data-i18n="workspace">Личное пространство</span><span class="slash">/</span><span id="breadcrumb-current">Фокус</span></div>
         <div class="topbar-actions">
           <span class="date-label" id="date-label"></span>
+          <button class="icon-button desktop-only" id="compact-toggle" hidden aria-label="Компактный таймер" data-i18n-aria="compactTimer" aria-pressed="false"><span data-icon="minimize"></span></button>
+          <button class="icon-button desktop-only" id="pin-toggle" hidden aria-label="Поверх окон" data-i18n-aria="alwaysOnTop" aria-pressed="false"><span data-icon="pin"></span></button>
           <button class="icon-button" id="sound-toggle" aria-label="Выключить звук" data-tooltip="Звук"><span data-icon="volume"></span></button>
           <button class="language-button" id="language-toggle" aria-label="Switch to English">EN</button>
           <span class="avatar" aria-hidden="true">F<span></span></span>
@@ -83,9 +88,12 @@
                 <div class="section-heading"><h2 data-i18n="todayTasks">Планы на сегодня</h2><span class="count-badge" id="task-count">0</span></div>
                 <p class="card-description" data-i18n="tasksDescription">Освободи голову. Запиши главное.</p>
                 <form class="task-form" id="task-form"><input id="task-input" name="task" maxlength="180" autocomplete="off" aria-label="Новая задача" placeholder="Что хочешь сделать?" data-i18n-placeholder="taskPlaceholder" data-i18n-aria="newTask" required><button type="submit" aria-label="Добавить задачу" data-i18n-aria="addTask"><span data-icon="plus"></span></button></form>
+                <div class="task-toolbar"><button class="text-button" id="add-detailed"><span data-icon="plus"></span><span data-i18n="addDetailed">Добавить с деталями</span></button><button class="text-button" id="filter-toggle" aria-label="Фильтры" data-i18n-aria="filters" aria-expanded="false"><span data-icon="filter"></span></button></div>
+                <div class="task-filters" id="task-filters" hidden><input type="search" id="task-search" maxlength="180" aria-label="Поиск задач" data-i18n-aria="searchTasks" placeholder="Поиск задач" data-i18n-placeholder="searchTasks"><select id="project-filter" aria-label="Проект" data-i18n-aria="project"></select></div>
                 <ul class="task-list" id="task-list"></ul>
                 <div class="empty-tasks" id="empty-tasks"><span class="empty-spark" data-icon="spark"></span><p data-i18n="emptyTasks">Большое начинается с малого.</p><span data-i18n="emptyTasksHint">Добавь первую задачу выше.</span></div>
                 <div class="task-footer"><span data-i18n="taskFooter">Нажми на задачу, чтобы сфокусироваться</span><button id="clear-completed" hidden data-i18n="clearDone">Убрать готовые</button></div>
+                <div class="trash-access"><button type="button" class="text-button" id="open-trash"><span data-icon="trash"></span><span data-i18n="trashTitle">Корзина</span><span id="trash-count" class="count-badge">0</span></button></div>
               </section>
               <section class="goal-card"><div class="goal-heading"><span class="goal-icon" data-icon="sun"></span><span data-i18n="dailyGoal">Маленькая цель на день</span><strong id="goal-label">0 / 4</strong></div><div class="goal-track"><div id="goal-progress"></div></div><p id="goal-message">Даже одна сессия — уже шаг вперёд.</p></section>
               <section class="break-card"><div class="break-card-top"><span class="card-label" data-i18n="gentleReminder">МЯГКОЕ НАПОМИНАНИЕ</span><span data-icon="leaf"></span></div><div class="window-illustration" aria-hidden="true"><div class="window-sun"></div><div class="hill hill-back"></div><div class="hill hill-front"></div><span class="window-frame"></span></div><h2 data-i18n="restMatters">Отдых — часть процесса.</h2><p data-i18n="restDescription">Отведи взгляд от экрана, смени позу или немного пройдись.</p><button class="text-button" id="open-guide"><span data-i18n="findBreak">Найти идею для перерыва</span><span data-icon="arrow"></span></button></section>
@@ -98,6 +106,12 @@
           <div class="insight-stats" id="insight-stats"></div>
           <section class="chart-card"><div class="section-heading"><h2 data-i18n="lastSevenDays">Последние 7 дней</h2><span class="chart-legend"><i></i><span data-i18n="focusMinutes">Минуты фокуса</span></span></div><div class="week-chart" id="week-chart" role="img"></div><p class="chart-note" data-i18n="chartNote">Здесь появятся завершённые сессии. Первый шаг — начать.</p></section>
           <section class="history-card"><div class="section-heading"><h2 data-i18n="recentSessions">Последние сессии</h2><span class="muted" data-i18n="latestTen">Последние 10</span></div><div id="session-history"></div></section>
+          <section class="history-card"><div class="section-heading"><h2 data-i18n="projectsReport">Время по проектам</h2><button class="text-button" id="export-csv"><span data-icon="download"></span><span data-i18n="exportCSV">Экспорт CSV</span></button></div><div id="project-report"></div></section>
+        </section>
+
+        <section id="view-plan" class="view" hidden>
+          <div class="page-heading"><div><div class="eyebrow"><span class="tiny-line"></span><span data-i18n="planEyebrow">ОСВОБОДИ МЕСТО ДЛЯ ГЛАВНОГО</span></div><h1 data-i18n="planTitle">День с намерением<span class="accent">.</span></h1><p data-i18n="planDescription">Задачи со сроком и место для собственных мыслей.</p></div><button class="quiet-button" id="plan-add" aria-label="Добавить задачу" data-i18n-aria="addTask"><span data-icon="plus"></span><span data-i18n="addTask">Добавить задачу</span></button></div>
+          <div class="planner-layout"><section class="history-card"><div class="section-heading"><h2 data-i18n="plannedTasks">План и незавершённое</h2><input type="date" id="plan-date" aria-label="Дата плана" data-i18n-aria="planDate"></div><p class="muted" id="plan-summary"></p><ul class="task-list plan-list" id="plan-list"></ul><p class="history-empty" id="plan-empty" data-i18n="planEmpty">На этот день пока нет задач со сроком.</p><button class="text-button" id="plan-today" data-i18n="backToToday">Вернуться к сегодняшнему дню</button></section><section class="history-card notes-card"><div class="section-heading"><h2 data-i18n="dayNotes">Заметка на день</h2><span data-icon="pencil"></span></div><p class="muted" data-i18n="notesHint">Что важно? Что можно сделать проще?</p><label for="day-note" class="visually-hidden" data-i18n="dayNotes">Заметка на день</label><textarea id="day-note" maxlength="3000" rows="11" placeholder="Запиши пару мыслей…" data-i18n-placeholder="notesPlaceholder"></textarea><div class="notes-footer"><span data-i18n="savedLocally">Сохраняется на устройстве</span><span id="note-count">0 / 3000</span></div></section></div>
         </section>
 
         <section id="view-guide" class="view" hidden>
@@ -118,9 +132,12 @@
       <div class="duration-fields"><label><span data-i18n="focusMinutesLabel">Фокус, мин</span><input name="focus" type="number" min="1" max="120" required></label><label><span data-i18n="shortMinutesLabel">Перерыв, мин</span><input name="short" type="number" min="1" max="30" required></label><label><span data-i18n="longMinutesLabel">Долгий, мин</span><input name="long" type="number" min="1" max="60" required></label></div>
       <label class="goal-field"><span data-i18n="goalSetting">Сессий в день</span><input name="goal" type="number" min="1" max="12" required></label>
       <label class="toggle-field"><span><strong data-i18n="soundSetting">Звук завершения</strong><small data-i18n="soundHint">Негромкий сигнал в конце сессии</small></span><input name="sound" type="checkbox" role="switch"></label>
+      <label class="toggle-field"><span><strong data-i18n="notifications">Системные уведомления</strong><small data-i18n="notificationsHint">Напоминание о завершении таймера</small></span><input name="notifications" type="checkbox" role="switch"></label>
+      <p class="settings-note" id="android-notice" hidden data-i18n="androidNotice">Android может задерживать уведомления в энергосберегающем режиме. Разрешения настраиваются в системе.</p>
+      <div id="desktop-settings" hidden><label class="toggle-field"><span><strong data-i18n="closeToTray">Сворачивать в трей при закрытии</strong><small data-i18n="trayHint">Таймер продолжит работу в фоне</small></span><input name="closeToTray" type="checkbox" role="switch"></label><label class="toggle-field"><span><strong data-i18n="startAtLogin">Запуск вместе с Windows</strong><small id="startup-hint" data-i18n="startupHint">Работает в установленной Windows-версии</small></span><input name="startAtLogin" type="checkbox" role="switch"></label><div class="storage-settings"><p class="muted" id="storage-mode"></p><label class="field-label"><span data-i18n="dataDirectory">Папка данных</span><input id="data-directory" readonly spellcheck="false"></label><button type="button" class="text-button" id="open-data-directory" data-i18n="openDataDirectory">Открыть папку</button><p class="settings-note" id="portable-storage-hint" hidden data-i18n="portableStorageHint">Для переноса закрой приложение и скопируй EXE вместе с папкой Focus Break Data.</p></div></div>
       <p class="settings-note" data-i18n="settingsNote">Новая длительность применится к следующей сессии. Текущий таймер сохранится.</p>
       <button type="submit" class="primary-button full-width" data-i18n="saveSettings">Сохранить</button>
-      <div class="data-actions"><button type="button" class="text-button" id="import-data"><span data-icon="upload"></span><span data-i18n="import">Восстановить данные</span></button><button type="button" class="text-button danger-text" id="clear-data" data-i18n="clearData">Удалить мои данные</button></div>
+      <div class="data-actions"><button type="button" class="text-button" id="import-data"><span data-icon="upload"></span><span data-i18n="import">Восстановить данные</span></button><button type="button" class="text-button danger-text" id="clear-data" data-i18n="clearData">Сбросить рабочие данные</button></div>
       <input id="import-file" type="file" accept="application/json,.json" hidden>
     </form>
   </dialog>
@@ -129,7 +146,39 @@
     <p data-i18n="aboutDescription">Бесплатное приложение с открытым исходным кодом, чтобы сосредоточиться на одном деле и вовремя отдохнуть.</p>
     <div class="about-features"><p><span data-icon="lock"></span><span data-i18n="aboutPrivacy">Без аккаунтов, рекламы и аналитики. Данные остаются в этом браузере.</span></p><p><span data-icon="wifi"></span><span data-i18n="aboutOffline">После первого посещения работает без интернета. Таймер требует открытого приложения.</span></p><p><span data-icon="code"></span><span data-i18n="aboutOpen">Чистый HTML, CSS и JavaScript. Лицензия MIT.</span></p></div>
     <p class="muted" data-i18n="timerLimit">В спящем режиме устройство не подаст сигнал. При возвращении таймер сверит время и сохранит одну завершённую сессию.</p>
-    <span class="version-label">FOCUS BREAK · v1.0</span>
+    <span class="version-label">FOCUS BREAK · v2.0</span>
+  </dialog>
+  <dialog id="task-dialog" aria-labelledby="task-dialog-title">
+    <form id="task-details-form">
+      <div class="dialog-heading"><div><span class="eyebrow" data-i18n="makeItYours">В ТВОЁМ ТЕМПЕ</span><h2 id="task-dialog-title" data-i18n="taskDetails">Детали задачи</h2></div><button type="button" class="icon-button dialog-close" aria-label="Закрыть" data-i18n-aria="close"><span data-icon="close"></span></button></div>
+      <label class="field-label"><span data-i18n="taskName">Что сделать</span><input name="text" maxlength="180" required></label>
+      <div class="form-grid"><label class="field-label"><span data-i18n="project">Проект</span><input name="project" maxlength="40" list="project-options"></label><label class="field-label"><span data-i18n="priority">Приоритет</span><select name="priority"><option value="normal" data-i18n="priorityNormal">Обычный</option><option value="high" data-i18n="priorityHigh">Высокий</option><option value="low" data-i18n="priorityLow">Низкий</option></select></label><label class="field-label"><span data-i18n="dueDate">Срок</span><input name="dueDate" type="date"></label><label class="field-label"><span data-i18n="repeat">Повторение</span><select name="repeat"><option value="none" data-i18n="repeatNone">Не повторять</option><option value="daily" data-i18n="repeatDaily">Каждый день</option><option value="weekdays" data-i18n="repeatWeekdays">По будням</option><option value="weekly" data-i18n="repeatWeekly">Каждую неделю</option></select></label></div>
+      <label class="field-label"><span data-i18n="tags">Теги через запятую</span><input name="tags" maxlength="150" placeholder="учёба, важное"></label>
+      <label class="goal-field estimate-field"><span data-i18n="estimate">Оценка в фокус-сессиях</span><input name="estimate" type="number" min="1" max="20" value="1" required></label>
+      <p class="settings-note" data-i18n="recurrenceHint">Следующая повторяющаяся задача появится после завершения текущей.</p>
+      <button type="submit" class="primary-button full-width" data-i18n="saveTask">Сохранить задачу</button>
+      <datalist id="project-options"></datalist>
+    </form>
+  </dialog>
+  <dialog id="trash-dialog" aria-labelledby="trash-title" aria-describedby="trash-hint">
+    <div class="dialog-heading"><h2 id="trash-title" data-i18n="trashTitle">Корзина</h2><button type="button" class="icon-button dialog-close" aria-label="Закрыть" data-i18n-aria="close"><span data-icon="close"></span></button></div>
+    <p id="trash-hint" class="muted" data-i18n="trashHint">Удалённые задачи сохраняются здесь, даже после перезапуска.</p>
+    <div class="trash-tools"><label class="field-label"><span data-i18n="searchTrash">Поиск в корзине</span><input id="trash-search" type="search" maxlength="180" autocomplete="off"></label><button type="button" class="quiet-button" id="restore-all" data-i18n="restoreAll">Восстановить все</button></div>
+    <p id="trash-summary" class="muted" role="status"></p>
+    <ul id="trash-list" class="trash-list"></ul>
+    <p id="trash-empty" class="history-empty" data-i18n="trashEmpty">В корзине пока пусто.</p>
+  </dialog>
+  <dialog id="recovery-dialog" aria-labelledby="recovery-title">
+    <div class="dialog-heading"><h2 id="recovery-title" data-i18n="recoveryTitle">Проверим сохранённые данные</h2></div>
+    <p id="recovery-reason" class="recovery-reason"></p>
+    <p class="muted" data-i18n="recoveryHelp">Исходные данные сохранены. Восстанови копию или выбери свой файл резервной копии.</p>
+    <div class="recovery-actions">
+      <button class="primary-button full-width" id="recover-backup" data-i18n="recoverBackup">Восстановить исправную копию</button>
+      <button class="quiet-button" id="export-recovery" data-i18n="exportRecovery">Скачать исходные данные</button>
+      <button class="quiet-button" id="recovery-import" data-i18n="chooseBackup">Выбрать резервную копию</button>
+      <button class="text-button" id="retry-storage" data-i18n="retryStorage">Повторить проверку</button>
+    </div>
+    <input id="recovery-file" type="file" accept="application/json,.json" hidden>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <noscript><div class="noscript-message">Для таймера нужен JavaScript. / Please enable JavaScript to use Focus Break.</div></noscript>

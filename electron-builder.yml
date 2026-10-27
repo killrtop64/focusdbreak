@@ -1,0 +1,39 @@
+appId: io.focusbreak.app
+productName: Focus Break
+copyright: Copyright © 2026 Focus Break contributors
+directories:
+  output: release
+  buildResources: build
+files:
+  - dist/**/*
+  - desktop/**/*
+  - shared/**/*
+  - build/icons/32.png
+  - build/icons/256.png
+  - package.json
+  - "!node_modules/**/*"
+asar: true
+win:
+  icon: build/icons/icon.ico
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+  signAndEditExecutable: false
+  artifactName: Focus-Break-${version}-Windows-${arch}.${ext}
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  deleteAppDataOnUninstall: false
+  artifactName: Focus-Break-${version}-Windows-${arch}-Setup.${ext}
+portable:
+  artifactName: Focus-Break-${version}-Windows-${arch}-Portable.${ext}
+linux:
+  icon: build/icons
+  category: Utility
+  target: [AppImage]
+  artifactName: Focus-Break-${version}-Linux-${arch}.${ext}

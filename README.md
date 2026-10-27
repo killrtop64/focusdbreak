@@ -6,7 +6,9 @@ A calm focus timer with tasks, useful breaks, and a private little record of you
 
 [Читать по-русски](README.ru.md)
 
-![Focus Break desktop interface](docs/desktop.png)
+![Focus Break desktop interface](docs/desktop-v2-preview.png)
+
+**Development status:** the existing app is being extended into an offline Windows and Android application. Windows packages can be built locally; native installation, upgrade and lifecycle acceptance is still pending. There is no verified APK yet. See [FEATURES.md](FEATURES.md) and [ROADMAP.md](ROADMAP.md) for the actual status.
 
 ## Why it exists
 
@@ -17,29 +19,34 @@ No account to create. No streak to protect. No subscription.
 ## What you get
 
 - **A reliable focus timer:** 25-minute sessions, 5-minute breaks, and a longer break after four completed sessions. Every duration is adjustable.
-- **Your intentions for today:** add tasks, pick one to focus on, check it off, and clear completed tasks.
+- **Tasks and planning:** projects, tags, priorities, due dates, completion-based daily/weekday/weekly repeats, search, a day plan and daily notes.
+- **Recoverable deletion:** a local trash with complete task snapshots, search, restore one/all, and quick undo. Completed-task cleanup keeps daily totals.
 - **A little perspective:** daily totals, a seven-day chart, and the ten most recent sessions.
 - **Space to focus:** a distraction-free view and keyboard controls.
 - **Useful break ideas:** simple prompts to look away, change position, and step away from your computer, with links to the original guidance.
-- **Your data, yours:** local browser storage, JSON backups, restore, and deletion.
+- **Local storage:** platform-specific storage, validated JSON import/export, checksums, a last good copy, and explicit recovery after corruption or an interrupted save.
 - **Offline support:** after a successful first visit, the app shell is cached by a service worker.
 - **Russian and English**, responsive layouts, visible keyboard focus, reduced-motion support, and screen-reader labels.
 
-There are **no runtime dependencies**, external fonts, trackers, or remote data services. Test tools are development dependencies only.
+The shared interface uses JavaScript and Vite, the desktop shell uses Electron, and Android uses Capacitor. The core features need no accounts, backend, remote fonts, trackers, or external API.
 
 ## Run locally
 
 Install [Node.js](https://nodejs.org/) 22 or newer. In the project folder:
 
 ```sh
+npm ci
+npm run build
 npm start
 ```
 
-Open **http://127.0.0.1:4173**. You do not need to install packages just to use the app.
+For a fresh checkout, run `npm ci` and `npm run build` before `npm start`. `npm start` opens Electron; `npm run web` starts Vite development mode.
+
+For a browser preview of the current build, run `npm run preview` and open **http://127.0.0.1:4173**. Rebuild after source changes. Browser storage is separate from desktop storage.
 
 You can also serve the `dist/` directory with any static HTTP server. Opening `index.html` directly as a file will not work because the application uses JavaScript modules.
 
-On Windows, `start-focus-break.cmd` starts the local server.
+On Windows, `start-focus-break.cmd` starts a browser preview of the existing `dist/`. It does not launch Electron. Build Windows packages with `npm run build:windows`; output is in `release/`. These local candidates are unsigned and still require native acceptance. New Portable builds select a `Focus Break Data` directory next to the launcher; move the EXE and that folder together after quitting. Earlier candidates used the Windows profile. See [PORTABLE.md](PORTABLE.md) for migration and testing limits.
 
 ## How time and privacy work
 
@@ -49,16 +56,16 @@ Only finished focus sessions contribute to focus statistics. Skipping or resetti
 
 A closed or sleeping browser cannot reliably play the completion sound. When you return, the app checks the deadline and records the one session that finished. Browser sound restrictions may also prevent a chime until you interact with the page.
 
-All tasks, settings, and history live in `localStorage` under `focus-break:v1`. Data is specific to a browser and origin. Use **Insights → Export data** before changing device or site address. Restore a backup from **Settings**. Backups contain your task text, so keep them somewhere appropriate.
+Windows stores data in Electron userData; Android uses Preferences; the browser uses origin-specific localStorage. Use **Insights → Export data** before changing device, site address or app version. Restore a backup from **Settings**. Backups include your trash and task text. The storage format and recovery steps are documented in [STORAGE.md](STORAGE.md).
 
-The app keeps up to 100 tasks, 2,000 completed focus sessions, and 2,000 task-completion records. Private-browsing settings and clearing site data can remove your records. The hosting provider still receives ordinary page requests; the application sends it no task or session data.
+Task, session and note collections are no longer silently truncated. The current document limit is 5 MB in UTF-8; an oversized import is rejected in full. Private browsing or clearing site data can remove browser records. Resetting working data retains recovery copies and explicitly warns that this is not a complete personal-data wipe. Backup management and final deletion from trash are still pending.
 
 ## Keyboard shortcuts
 
 | Key | Action |
 | --- | --- |
 | Space | Start or pause the timer |
-| 1 / 2 / 3 | Focus / Insights / Break ideas |
+| 1 / 2 / 3 / 4 | Focus / Insights / Break ideas / Day planner |
 | Escape | Leave the distraction-free view or close a dialog |
 
 Shortcuts do not interrupt typing. A focused button retains its normal Space-key behavior.
@@ -69,6 +76,7 @@ Shortcuts do not interrupt typing. A focused button retains its normal Space-key
 npm ci
 npm run check
 npm test
+npm run build
 npx playwright install chromium
 npm run test:e2e
 ```
@@ -82,41 +90,33 @@ $env:PLAYWRIGHT_CHANNEL = 'msedge'
 npm run test:e2e
 ```
 
-There are 13 domain tests and 8 browser scenarios, covering pause/resume, sleep recovery, session accounting, data validation, backup restore, multiple tabs, offline use, mobile overflow, and automated WCAG AA checks. Automated checks do not replace a manual accessibility review.
+There are 55 domain/storage tests and 24 browser scenarios, including trash recovery, data-location selection, folder transport, write denial, offline use, multiple tabs and WCAG AA checks. Four desktop-settings scenarios use a simulated preload bridge. Browser and file-adapter tests do not replace Electron or Android acceptance.
 
-The GitHub **Checks** workflow runs the same checks on pushes and pull requests.
+The GitHub **Checks** workflow is configured to build Vite before browser tests. Its current revision has not been run remotely; native package jobs are still pending.
 
-## Publish
+## Packaging and publishing
 
-The app is completely static. Upload the contents of `dist/` to a static host with HTTPS. All asset paths are relative, so repository subpaths work as well.
+The browser build in `dist/` can be served statically after `npm run build`. The offline shell and asset names are generated by the build; do not edit `dist/` manually. Native packaging uses Electron Builder. Android source sync uses `npm run android:sync`; the current `android:apk` command references a missing script, so it is not a working APK build instruction yet.
 
-For GitHub Pages:
-
-1. Open the repository's **Settings → Pages** and select **GitHub Actions** as the source.
-2. Open **Actions → Publish to GitHub Pages → Run workflow**.
-3. Use the URL returned by the workflow. To publish changes later, run that workflow again.
-
-No environment variables, API keys, database, or build step are needed.
+The old Pages workflow has not been reviewed for the native-app development stage. Do not treat it as a verified release pipeline. Repository pushes, deployments and public releases require separate owner authorization. No public native release is declared by the package version alone.
 
 If you fork this project and use Sites hosting, remove the existing project identity in `.openai/hosting.json` before registering a new Site.
 
 ## Project map
 
 ```text
-dist/
-  index.html           Accessible application shell
-  styles.css           Responsive visual design
-  app.js               Browser interactions and persistence
-  core.js              Timer state and statistics
-  i18n.js              Russian and English strings
-  sw.js                Offline app-shell cache
-scripts/serve.mjs      Local HTTP server, no dependencies
-tests/core.test.js     Domain behavior tests
-e2e/app.spec.js        Browser and accessibility checks
-.github/workflows/     Continuous checks and optional Pages publishing
+src/                  Shared UI, domain logic and platform adapter
+shared/               State validation and storage journal
+desktop/              Electron main process, preload and file storage
+android/              Capacitor Android project, not a verified APK
+dist/                 Generated Vite output and offline shell
+scripts/              Build, icons, local preview and Android tooling
+tests/                Domain, storage and file-adapter tests
+e2e/                  Browser, offline, recovery and accessibility tests
+.github/workflows/    Continuous checks and legacy Pages workflow
 ```
 
-When changing cached files, increment the cache name in `dist/sw.js` so old app-shell caches are cleaned up.
+Build scripts generate the offline-cache version from the output. Keep source changes in `src/`, `shared/` and the platform directories.
 
 ## Contributing
 
@@ -126,4 +126,4 @@ Break ideas draw on [OSHA's computer-work process guidance](https://www.osha.gov
 
 ## License
 
-[MIT](LICENSE). Make it your own. Build something useful.
+The existing repository contains [MIT](LICENSE). The owner has requested explicit confirmation of the final license before the first public native release; this development work does not change the license file.

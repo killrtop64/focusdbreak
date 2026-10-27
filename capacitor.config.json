@@ -1,0 +1,9 @@
+{
+  "appId": "io.focusbreak.app",
+  "appName": "Focus Break",
+  "webDir": "dist",
+  "android": { "minWebViewVersion": 109 },
+  "plugins": {
+    "LocalNotifications": { "smallIcon": "ic_stat_focus", "iconColor": "#C1E7A6" }
+  }
+}

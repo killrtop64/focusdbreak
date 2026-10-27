@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   createState, start, pause, remaining, tick, switchMode, restoreState, todayStats, weekStats, localDate,
-} from '../dist/core.js';
+} from '../src/core.js';
 
 const NOW = new Date(2026, 9, 27, 12).getTime();
 
@@ -154,12 +154,12 @@ test('weekly statistics use local calendar dates, including month boundaries', (
   assert.equal(localDate(now), '2026-11-02');
 });
 
-test('history and task storage remain bounded', () => {
+test('restoration keeps all tasks, long text and session history', () => {
   const state = createState(NOW);
   state.tasks = Array.from({ length:150 }, (_, i) => ({ id:String(i), text:'x'.repeat(300) }));
   state.history = Array.from({ length:2500 }, (_, i) => ({ id:String(i), endedAt:NOW, seconds:1500 }));
   const restored = restoreState(state, NOW);
-  assert.equal(restored.tasks.length, 100);
-  assert.equal(restored.tasks[0].text.length, 180);
-  assert.equal(restored.history.length, 2000);
+  assert.equal(restored.tasks.length, 150);
+  assert.equal(restored.tasks[0].text.length, 300);
+  assert.equal(restored.history.length, 2500);
 });
