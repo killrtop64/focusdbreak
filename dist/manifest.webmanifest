@@ -1,0 +1,13 @@
+{
+  "name": "Focus Break",
+  "short_name": "Focus Break",
+  "description": "A calm, private focus timer with tasks and intentional breaks.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#141a19",
+  "theme_color": "#141a19",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
